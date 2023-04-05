@@ -1,0 +1,1 @@
+text_score = font.render('your score:' + str(SCORE),True,(GREEN))
