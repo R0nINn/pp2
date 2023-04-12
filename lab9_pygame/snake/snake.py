@@ -58,9 +58,16 @@ class Apple():
         self.foodx = int(random.randint(0,w)//50)*50
         self.foody = int(random.randint(0,h)//50)*50
         self.rect = pygame.Rect(self.foodx,self.foody,BLOCK_size,BLOCK_size)
-        self.weight = 5
     def update(self):
         pygame.draw.rect(surf,RED,self.rect)
+class GoldApple():
+    def __init__(self):
+        self.foodx = int(random.randint(0,w)//50)*50
+        self.foody = int(random.randint(0,h)//50)*50
+        self.rect = pygame.Rect(self.foodx,self.foody,BLOCK_size,BLOCK_size)
+        self.weight = random.randint(5,10)
+    def update(self):
+        pygame.draw.rect(surf,'yellow',self.rect)
 
 # function to  draw grid
 def Drawgrid():
@@ -73,24 +80,33 @@ Drawgrid()
 
 snake = Snake()
 apple = Apple()
+gold = GoldApple()
 
+apples = (apple,gold)
+choice = random.choice(apples)
 new_food = pygame.USEREVENT + 0
-
 pygame.time.set_timer(new_food ,10000)
 weight_minus = pygame.USEREVENT + 1
 pygame.time.set_timer(weight_minus,2000)
 
-while True:
-    
+food_in_body = False
+if (apple.foodx and apple.foody in snake.body):
+    food_in_body = True
+
+while True:  
     if snake.dead == True:
         pygame.quit()
         sys.exit()
     
+    while food_in_body:
+        choice.update()
+    
     for event in pygame.event.get():
         if event.type == new_food:
-            apple = Apple()
+            choice = random.choice(apples)
+            choice.update()
         if event.type == weight_minus:
-            apple.weight -= 1
+            gold.weight -= 1
             
         if event.type == QUIT:
             pygame.quit()
@@ -120,7 +136,7 @@ while True:
     snake.update()
     surf.fill(BLACK)
     Drawgrid()
-    apple.update()
+    choice.update()
     
     scoreboard = font.render(str(SCORE),True,WHITE)
     surf.blit(scoreboard,(10,10))
@@ -133,12 +149,19 @@ while True:
 # cheching for eating a food
     if snake.head.x ==apple.foodx and snake.head.y ==apple.foody:
         snake.body.append(pygame.Rect(square.x,square.y,BLOCK_size,BLOCK_size))
-        SCORE+=apple.weight
-        apple = Apple()
+        SCORE+=1
+        choice = random.choice(apples)
+        pygame.time.set_timer(new_food ,10000)
+        if ((len(snake.body)))%3==0:
+            FPS = FPS + 2
+    if snake.head.x ==gold.foodx and snake.head.y ==gold.foody:
+        snake.body.append(pygame.Rect(square.x,square.y,BLOCK_size,BLOCK_size))
+        SCORE+=gold.weight
+        choice = random.choice(apples)
         pygame.time.set_timer(new_food ,10000)
         if ((len(snake.body)))%3==0:
             FPS = FPS + 2
     
        
     pygame.display.update()
-    FramePerSec.tick(FPS)       
+    FramePerSec.tick(FPS)   
